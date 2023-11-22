@@ -903,17 +903,20 @@ static struct tegra_gte_info tegra194_gte_info[] = {
 
 static inline u32 tegra_gte_readl(struct tegra_gpio_info *tgi, u32 reg)
 {
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 	return __raw_readl(tgi->gte_regs + reg);
 }
 
 static inline void tegra_gte_writel(struct tegra_gpio_info *tgi, u32 reg,
 		u32 val)
 {
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 	__raw_writel(val, tgi->gte_regs + reg);
 }
 
 static void tegra_gte_flush_fifo(struct tegra_gpio_info *tgi)
 {
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 	/* Check if FIFO is empty */
 	while ((tegra_gte_readl(tgi, GTE_GPIO_TESTATUS) >>
 		GTE_GPIO_TESTATUS_OCCUPANCY_SHIFT) &
@@ -931,6 +934,8 @@ u64 tegra_gte_read_fifo(struct tegra_gpio_info *tgi, u32 offset)
 	u32 precv, curcv, xorcv;
 	u32 aon_bits;
 	u32 bit_index = 0;
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	/* Check if FIFO is empty */
 	while ((tegra_gte_readl(tgi, GTE_GPIO_TESTATUS) >>
@@ -973,6 +978,8 @@ int tegra_gte_enable_ts(struct tegra_gpio_info *tgi, u32 offset)
 	u32 val, mask, reg;
 	int i = 0;
 
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	if (tgi->gte_enable == 1) {
 		dev_err(tgi->dev, "timestamp is already enabled for gpio\n");
 		return -EINVAL;
@@ -1006,6 +1013,8 @@ int tegra_gte_disable_ts(struct tegra_gpio_info *tgi, u32 offset)
 {
 	u32 val, mask;
 
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	if (tgi->gte_enable == 0) {
 		dev_err(tgi->dev, "timestamp is already disabled\n");
 		return 0;
@@ -1030,6 +1039,8 @@ int tegra_gte_disable_ts(struct tegra_gpio_info *tgi, u32 offset)
 
 int tegra_gte_setup(struct tegra_gpio_info *tgi)
 {
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	tegra_gte_writel(tgi, GTE_GPIO_TECTRL, 0);
 	tgi->gte_enable = 0;
 
@@ -1041,6 +1052,8 @@ int tegra_gte_setup(struct tegra_gpio_info *tgi)
 static int tegra186_gpio_to_wake(struct tegra_gpio_info *tgi, int gpio)
 {
 	int i;
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	for (i = 0; i < tgi->soc->nwakes; i++) {
 		if (tgi->soc->wake_table[i] == gpio) {
@@ -1062,12 +1075,16 @@ static int tegra186_gpio_to_wake(struct tegra_gpio_info *tgi, int gpio)
 static inline u32 tegra_gpio_readl(struct tegra_gpio_info *tgi, u32 gpio,
 				   u32 reg_offset)
 {
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	return __raw_readl(GPIO_CNTRL_REG(tgi, gpio, reg_offset));
 }
 
 static inline void tegra_gpio_writel(struct tegra_gpio_info *tgi, u32 val,
 				     u32 gpio, u32 reg_offset)
 {
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	__raw_writel(val, GPIO_CNTRL_REG(tgi, gpio, reg_offset));
 }
 
@@ -1075,6 +1092,8 @@ static inline void tegra_gpio_update(struct tegra_gpio_info *tgi, u32 gpio,
 				     u32 reg_offset,	u32 mask, u32 val)
 {
 	u32 rval;
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	rval = __raw_readl(GPIO_CNTRL_REG(tgi, gpio, reg_offset));
 	rval = (rval & ~mask) | (val & mask);
@@ -1089,6 +1108,8 @@ static inline bool gpio_is_accessible(struct tegra_gpio_info *tgi, u32 offset)
 	u32 val;
 	int cont_id;
 	u32 scr_offset = tgi->soc->port[port].scr_offset;
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	if (pin >= tgi->soc->port[port].valid_pins)
 		return false;
@@ -1120,6 +1141,8 @@ static void tegra_gpio_save_gpio_state(struct tegra_gpio_info *tgi, u32 offset)
 {
 	struct tegra_gpio_state *regs;
 
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	regs = &tgi->state_init[offset];
 
 	regs->conf = tegra_gpio_readl(tgi, offset, GPIO_ENB_CONFIG_REG);
@@ -1132,6 +1155,8 @@ static void tegra_gpio_restore_gpio_state(struct tegra_gpio_info *tgi,
 {
 	struct tegra_gpio_state *regs;
 	int was_gpio, was_output;
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	regs = &tgi->state_init[offset];
 	was_gpio = regs->conf & 0x1;
@@ -1170,12 +1195,16 @@ static void tegra_gpio_restore_gpio_state(struct tegra_gpio_info *tgi,
 
 static void tegra_gpio_enable(struct tegra_gpio_info *tgi, int gpio)
 {
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	tegra_gpio_update(tgi, gpio, GPIO_ENB_CONFIG_REG, GPIO_ENB_BIT, 0x1);
 }
 
 static int tegra_gpio_request(struct gpio_chip *chip, unsigned offset)
 {
 	struct tegra_gpio_info *tgi = gpiochip_get_data(chip);
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	if (!gpio_is_accessible(tgi, offset))
 		return -EBUSY;
@@ -1192,6 +1221,8 @@ static void tegra_gpio_free(struct gpio_chip *chip, unsigned offset)
 {
 	struct tegra_gpio_info *tgi = gpiochip_get_data(chip);
 
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	if (tgi->soc->use_pinmuxing)
 		pinctrl_free_gpio(chip->base + offset);
 
@@ -1203,6 +1234,8 @@ static void tegra_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
 	struct tegra_gpio_info *tgi = gpiochip_get_data(chip);
 	u32 val = (value) ? 0x1 : 0x0;
 
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	tegra_gpio_writel(tgi, val, offset, GPIO_OUT_VAL_REG);
 }
 
@@ -1210,6 +1243,8 @@ static int tegra_gpio_get(struct gpio_chip *chip, unsigned offset)
 {
 	struct tegra_gpio_info *tgi = gpiochip_get_data(chip);
 	u32 val;
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	val = tegra_gpio_readl(tgi, offset, GPIO_ENB_CONFIG_REG);
 	if (val & GPIO_INOUT_BIT)
@@ -1224,6 +1259,8 @@ static void set_gpio_direction_mode(struct gpio_chip *chip, u32 offset,
 	struct tegra_gpio_info *tgi = gpiochip_get_data(chip);
 	u32 val;
 
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	val = tegra_gpio_readl(tgi, offset, GPIO_ENB_CONFIG_REG);
 	if (mode)
 		val |= GPIO_INOUT_BIT;
@@ -1236,6 +1273,8 @@ static int tegra_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
 {
 	struct tegra_gpio_info *tgi = gpiochip_get_data(chip);
 	int ret = 0;
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	set_gpio_direction_mode(chip, offset, 0);
 	tegra_gpio_enable(tgi, offset);
@@ -1256,6 +1295,8 @@ static int tegra_gpio_direction_output(struct gpio_chip *chip, unsigned offset,
 	struct tegra_gpio_info *tgi = gpiochip_get_data(chip);
 	int ret = 0;
 
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	tegra_gpio_set(chip, offset, value);
 	tegra_gpio_writel(tgi, 0, offset, GPIO_OUT_CTRL_REG);
 	set_gpio_direction_mode(chip, offset, 1);
@@ -1273,6 +1314,9 @@ int tegra_gpio_enable_external_gte(struct gpio_chip *chip)
 {
 
 	struct tegra_gpio_info *tgi;
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	if (!chip)
 		return -EOPNOTSUPP;
 
@@ -1288,6 +1332,8 @@ static int tegra_gpio_timestamp_control(struct gpio_chip *chip, unsigned offset,
 	u32 val = enable << GPIO_TIMESTAMP_FUNC_BIT;
 	u32 mask = BIT(GPIO_TIMESTAMP_FUNC_BIT);
 	int ret = 0;
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	if (tgi->use_timestamp || tgi->use_ext_gte_timestamp) {
 		tegra_gpio_update(tgi, offset, GPIO_ENB_CONFIG_REG, mask, val);
@@ -1309,6 +1355,8 @@ static int tegra_gpio_timestamp_read(struct gpio_chip *chip, unsigned offset,
 	struct tegra_gpio_info *tgi = gpiochip_get_data(chip);
 	int ret;
 
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	if (tgi->use_timestamp) {
 		*ts = tegra_gte_read_fifo(tgi, offset);
 		ret = 0;
@@ -1323,6 +1371,8 @@ static int tegra_gpio_suspend_configure(struct gpio_chip *chip, unsigned offset,
 {
 	struct tegra_gpio_info *tgi = gpiochip_get_data(chip);
 	struct tegra_gpio_state *regs;
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	if (!gpio_is_accessible(tgi, offset))
 		return -EBUSY;
@@ -1351,6 +1401,8 @@ static int tegra_gpio_set_debounce(struct gpio_chip *chip, unsigned offset,
 	tegra_gpio_update(tgi, offset, GPIO_ENB_CONFIG_REG,
 			  GPIO_DEB_FUNC_BIT, GPIO_DEB_FUNC_BIT);
 
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	/* Update debounce threshold, GPIO controller support maximum
 	 * 255ms debounce
 	 */
@@ -1364,6 +1416,8 @@ static int tegra_gpio_set_debounce(struct gpio_chip *chip, unsigned offset,
 static int tegra_gpio_set_config(struct gpio_chip *chip, unsigned offset,
 				   unsigned long config)
 {
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	if (pinconf_to_config_param(config) != PIN_CONFIG_INPUT_DEBOUNCE)
 		return -ENOTSUPP;
 
@@ -1378,6 +1432,8 @@ static int tegra_gpio_is_enabled(struct gpio_chip *chip, unsigned offset)
 	struct tegra_gpio_info *tgi = gpiochip_get_data(chip);
 	u32 val;
 
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	if (!gpio_is_accessible(tgi, offset))
 		return -EPERM;
 
@@ -1390,6 +1446,8 @@ static int tegra_gpio_get_direction(struct gpio_chip *chip, unsigned offset)
 {
 	struct tegra_gpio_info *tgi = gpiochip_get_data(chip);
 	u32 val;
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	if (!gpio_is_accessible(tgi, offset))
 		return -EPERM;
@@ -1404,6 +1462,8 @@ static int tegra_gpio_to_irq(struct gpio_chip *chip, unsigned offset)
 {
 	struct tegra_gpio_info *tgi = gpiochip_get_data(chip);
 
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	return irq_find_mapping(tgi->irq_domain, offset);
 }
 
@@ -1411,12 +1471,16 @@ static void tegra_gpio_irq_ack(struct irq_data *d)
 {
 	struct tegra_gpio_controller *ctrlr = irq_data_get_irq_chip_data(d);
 
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	tegra_gpio_writel(ctrlr->tgi, 1, d->hwirq, GPIO_INT_CLEAR_REG);
 }
 
 static void tegra_gpio_irq_mask(struct irq_data *d)
 {
 	struct tegra_gpio_controller *c = irq_data_get_irq_chip_data(d);
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	tegra_gpio_update(c->tgi, d->hwirq, GPIO_ENB_CONFIG_REG,
 			  GPIO_INT_FUNC_BIT, 0);
@@ -1426,6 +1490,8 @@ static void tegra_gpio_irq_mask(struct irq_data *d)
 static void tegra_gpio_irq_unmask(struct irq_data *d)
 {
 	struct tegra_gpio_controller *c = irq_data_get_irq_chip_data(d);
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	tegra_gpio_update(c->tgi, d->hwirq, GPIO_ENB_CONFIG_REG,
 			  GPIO_INT_FUNC_BIT, GPIO_INT_FUNC_BIT);
@@ -1437,6 +1503,8 @@ static void tegra_gpio_irq_bus_sync_unlock(struct irq_data *d)
 	struct tegra_gpio_controller *c = irq_data_get_irq_chip_data(d);
 	struct gpio_chip *chip = &c->tgi->gc;
 	int ret;
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	if (!(c->int_state[d->hwirq] & GPIO_INTERRUPT_UNMASK_ENABLE))
 		return;
@@ -1462,6 +1530,8 @@ static int tegra_gpio_irq_set_type(struct irq_data *d, unsigned int type)
 	u32 trg_type;
 	u32 val;
 	int wake = tegra186_gpio_to_wake(ctrlr->tgi, d->hwirq);
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	switch (type & IRQ_TYPE_SENSE_MASK) {
 	case IRQ_TYPE_EDGE_RISING:
@@ -1521,6 +1591,8 @@ static int tegra_gpio_irq_set_wake(struct irq_data *d, unsigned int enable)
 	int wake = tegra186_gpio_to_wake(ctrlr->tgi, d->hwirq);
 	int ret;
 
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	if (wake < 0)
 		return wake;
 
@@ -1544,6 +1616,8 @@ static void tegra_gpio_irq_handler_desc(struct irq_desc *desc)
 	u32 addr;
 	int port_map[MAX_GPIO_PORTS];
 	unsigned int irq_offset, irq_index;
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	for (i = 0; i < MAX_GPIO_PORTS; ++i)
 		port_map[i] = -1;
@@ -1605,6 +1679,8 @@ static int dbg_gpio_show(struct seq_file *s, void *unused)
 	struct tegra_gpio_info *tgi = s->private;
 	int i;
 
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	seq_puts(s, "Port:Pin:ENB DBC IN OUT_CTRL OUT_VAL INT_CLR\n");
 	for (i = 0; i < tgi->gc.ngpio; i++) {
 		if (!gpio_is_accessible(tgi, i))
@@ -1624,6 +1700,8 @@ static int dbg_gpio_show(struct seq_file *s, void *unused)
 
 static int dbg_gpio_open(struct inode *inode, struct file *file)
 {
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	return single_open(file, dbg_gpio_show, inode->i_private);
 }
 
@@ -1636,6 +1714,8 @@ static const struct file_operations debug_fops = {
 
 static int tegra_gpio_debuginit(struct tegra_gpio_info *tgi)
 {
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	(void)debugfs_create_file(tgi->soc->debug_fs_name, S_IRUGO,
 				  NULL, tgi, &debug_fops);
 	return 0;
@@ -1652,6 +1732,8 @@ static int tegra_gpio_get_num_ports(struct tegra_gpio_info *tgi, int bank)
 	int i;
 	int count = 0;
 
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	for (i = 0; i < tgi->soc->nports; i++) {
 		if (tgi->soc->port[i].cont_id == bank)
 			count++;
@@ -1667,6 +1749,8 @@ static void tegra_gpio_read_irq_routemap(struct tegra_gpio_info *tgi, int bank,
 	int j;
 	int ret;
 	u32 pval;
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	/* Port G interrupt is not mapped to any line. */
 	if (bank == 0) {
@@ -1690,6 +1774,8 @@ static int tegra_gpio_to_hw_irq(unsigned int sw_irq)
 {
         struct irq_data *d = irq_get_irq_data(sw_irq);
 
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
         if (!d)
                 return -ENODEV;
 
@@ -1703,6 +1789,8 @@ static bool tegra_gpio_irq_is_protected(struct device *dev, u32 hw_irq)
 	int i;
 	int ret;
 	u32 pval;
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	count = of_property_count_elems_of_size(np, "nvidia,protected-gpio-irqs",
 					      sizeof(u32));
@@ -1736,6 +1824,8 @@ static int tegra_gpio_probe(struct platform_device *pdev)
 	int gpio;
 	int ret;
 	int i, j;
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	tgi = devm_kzalloc(&pdev->dev, sizeof(*tgi), GFP_KERNEL);
 	if (!tgi)
@@ -1965,6 +2055,8 @@ static int tegra_gpio_probe(struct platform_device *pdev)
 #ifdef CONFIG_PM_SLEEP
 static int tegra_gpio_resume_early(struct device *dev)
 {
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
+
 	struct tegra_gpio_info *tgi = dev_get_drvdata(dev);
 	struct tegra_gpio_state *regs;
 	int i;
@@ -1988,6 +2080,8 @@ static int tegra_gpio_resume_early(struct device *dev)
 static int tegra_gpio_suspend_late(struct device *dev)
 {
 	struct tegra_gpio_info *tgi = dev_get_drvdata(dev);
+
+	printk(KERN_DEBUG "Debug NVIDIA gpio %s, file %s", __func__, __FILE__);
 
 	return of_gpiochip_suspend(&tgi->gc);
 }
